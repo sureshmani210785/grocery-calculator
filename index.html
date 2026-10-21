@@ -3,299 +3,171 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="viewport" content="width=device-width,initial-scale=1">
 <meta name="theme-color" content="#176b45">
-<title>Grocery Calculator | மளிகை கணக்கீடு</title>
+<title>Grocery Calculator / மளிகைக் கணிப்பான்</title>
 <style>
-:root{font-family:Arial,sans-serif;color:#20342b;background:#f3f7f4}
-*{box-sizing:border-box}
-body{margin:0;padding:16px}
-.app{max-width:850px;margin:auto}
-header{background:#176b45;color:white;padding:23px;border-radius:18px;margin-bottom:16px}
-header h1{margin:0 0 8px;font-size:25px}
-header p{margin:0;color:#e1f4e8}
-.card{background:white;border:1px solid #e0e9e2;border-radius:15px;padding:17px;margin-bottom:15px;box-shadow:0 3px 12px #193c2510}
-h2{font-size:18px;margin:0 0 15px}
-label{display:block;font-size:13px;font-weight:bold;margin:10px 0 6px}
-input,select,button{font:inherit}
-input,select{width:100%;padding:12px;border:1px solid #cad8ce;border-radius:9px;background:white;color:#20342b;min-height:44px}
-button{padding:12px 15px;border:0;border-radius:9px;background:#176b45;color:white;font-weight:bold;cursor:pointer;min-height:43px}
-button:active{opacity:.8}
-button.secondary{background:#e6f2e9;color:#176b45}
-button.danger{background:#fff0ef;color:#b42318}
-button.full{width:100%;margin-top:14px}
-.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.ratebox{background:#eff8f1;padding:12px;border-radius:9px;margin-top:12px}
-.small{font-size:12px;color:#62766a}
-.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
-.row>*{flex:1}
-table{width:100%;border-collapse:collapse;font-size:13px}
-th,td{padding:10px 5px;border-bottom:1px solid #e7eee8;text-align:left}
-th{color:#607367}
-td:last-child,th:last-child{text-align:right}
-td button{padding:7px 9px;min-height:32px}
-.billtable{overflow-x:auto}
-.totalrow{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #edf1ee}
-.grand{font-size:21px;font-weight:bold;color:#176b45}
-#message{font-size:13px;margin-top:10px;color:#176b45}
-footer{text-align:center;color:#6d7d72;font-size:12px;padding:15px}
-@media(max-width:480px){body{padding:10px}.grid{gap:8px}header{padding:18px}.card{padding:13px}header h1{font-size:21px}}
+*{box-sizing:border-box}body{margin:0;padding:14px;background:#f2f7f3;color:#20382b;font:15px Arial,sans-serif}
+main{max-width:850px;margin:auto}header{background:#176b45;color:white;padding:20px;border-radius:16px}
+h1{font-size:24px;margin:0 0 8px}h2{font-size:19px;margin-top:0}
+.card{background:white;padding:16px;border-radius:14px;margin:14px 0;border:1px solid #dce8df}
+nav,.actions,.grid{display:flex;gap:10px;flex-wrap:wrap}nav{margin-top:15px}
+a,button{display:inline-block;background:#176b45;color:white;padding:11px 14px;border:0;border-radius:8px;text-decoration:none;cursor:pointer;font-weight:bold}
+a.alt,button.alt{background:#e3f1e7;color:#176b45}button.red{background:#fff0ee;color:#a32620}
+label{display:block;font-weight:bold;font-size:13px;margin:12px 0 6px}
+input,select{width:100%;padding:11px;border:1px solid #c9d8cd;border-radius:8px;background:white;font:inherit;min-height:43px}
+.field{flex:1;min-width:130px}.grid{display:flex}.grid>.field{flex:1}
+.row{display:flex;justify-content:space-between;gap:12px;padding:9px 0;border-bottom:1px solid #e5ece7}
+.big{font-size:21px;color:#176b45;font-weight:bold}.muted{font-size:12px;color:#64776a}
+.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:9px 5px;border-bottom:1px solid #e6ede8}td:last-child,th:last-child{text-align:right}
+td button{padding:7px 9px}.actions{margin-top:13px}.actions>*{flex:1}
+#msg{color:#176b45;font-size:13px;white-space:pre-wrap}
+@media(max-width:480px){body{padding:9px}.card{padding:12px}h1{font-size:21px}}
 </style>
 </head>
-<body>
-<div class="app">
+<body><main>
 <header>
-  <h1>🛒 Grocery Calculator</h1>
-  <p>மளிகை கணக்கீடு · English + தமிழ்</p>
+<h1>🛒 Grocery Calculator / மளிகைக் கணிப்பான்</h1>
+<div>English + தமிழ் · Bill and stock management / ரசீது மற்றும் இருப்பு மேலாண்மை</div>
+<nav><a href="index.html">Calculator / கணிப்பான்</a><a class="alt" href="manage.html">Manage Items / பொருட்களை நிர்வகி</a></nav>
 </header>
 
 <section class="card">
-<h2>1. Select Grocery / மளிகைப் பொருள்</h2>
-<label for="search">Find item / பொருளைத் தேடவும்</label>
-<input id="search" placeholder="Type English or Tamil name..." autocomplete="off">
-<label for="item">Grocery item / பொருள்</label>
-<select id="item"></select>
-
-<div class="ratebox">
-  <div><b id="selectedName">Select an item</b></div>
-  <div class="small" id="rateInfo">Default sample rate · You can edit the rate</div>
-  <div class="grid">
-    <div>
-      <label for="rate">Rate (₹ per kg/L/piece)</label>
-      <input id="rate" type="number" min="0" step="0.01" value="100">
-    </div>
-    <div>
-      <label for="qty">Quantity</label>
-      <input id="qty" type="number" min="0.001" step="any" value="500">
-    </div>
-  </div>
-  <label for="unit">Quantity unit / அளவு</label>
-  <select id="unit">
-    <option value="g">Grams (g)</option>
-    <option value="kg">Kilograms (kg)</option>
-  </select>
-  <div class="totalrow"><span>Item amount / தொகை</span><b id="amount">₹0.00</b></div>
-</div>
-<button class="full" id="add">＋ Add to Bill / பட்டியலில் சேர்</button>
-<p class="small">Rates are example prices. Edit them to match your shop prices.</p>
-</section>
-
-<section class="card">
-<h2>2. Your Bill / ரசீது</h2>
-<div class="billtable">
-<table>
-<thead><tr><th>Item / பொருள்</th><th>Qty</th><th>Amount</th><th></th></tr></thead>
-<tbody id="billRows"></tbody>
-</table>
-</div>
-<div id="empty" class="small" style="padding:15px 0">No items added yet.</div>
-<div class="totalrow"><span>Subtotal / மொத்தம்</span><b id="subtotal">₹0.00</b></div>
+<h2>Choose Grocery / மளிகைப் பொருளைத் தேர்வு செய்க</h2>
+<label for="search">Search Item / பொருளைத் தேடு</label>
+<input id="search" placeholder="English or தமிழ்">
+<label for="item">Grocery Item / மளிகைப் பொருள்</label><select id="item"></select>
 <div class="grid">
-  <div><label for="discount">Discount (₹)</label><input id="discount" type="number" min="0" step="0.01" value="0"></div>
-  <div><label for="paid">Amount paid (₹)</label><input id="paid" type="number" min="0" step="0.01" value="0"></div>
+<div class="field"><label for="rate">Rate ₹ per kg/L/piece / விலை</label><input id="rate" type="number" min="0" step=".01"></div>
+<div class="field"><label for="qty">Quantity / அளவு</label><input id="qty" type="number" min=".001" step="any" value="500"></div>
 </div>
-<div class="totalrow"><span>Grand total / இறுதித் தொகை</span><b class="grand" id="grand">₹0.00</b></div>
-<div class="totalrow"><span id="balanceLabel">Balance due / மீதம் செலுத்த</span><b id="balance">₹0.00</b></div>
-<div class="row" style="margin-top:14px">
-<button id="save">Save Bill</button>
-<button class="secondary" id="copy">Copy Bill</button>
-<button class="danger" id="clear">Clear Bill</button>
-</div>
-<p id="message" role="status"></p>
+<label for="unit">Unit / அலகு</label><select id="unit"></select>
+<div class="row"><span>Available Stock / இருப்பு</span><b id="stock">—</b></div>
+<div class="row"><span>Item Amount / பொருள் தொகை</span><b id="amount">₹0.00</b></div>
+<button id="add" style="width:100%;margin-top:14px">Add to Bill / ரசீதில் சேர்</button>
+<p class="muted">Rates are editable sample prices / விலைகளை மாற்றிக்கொள்ளலாம்.</p>
 </section>
 
 <section class="card">
-<h2>3. Saved Bills / சேமித்த ரசீதுகள்</h2>
-<label for="saved">Choose a saved bill</label>
-<select id="saved"><option value="">No saved bills</option></select>
-<div class="row" style="margin-top:12px">
-<button class="secondary" id="load">Load Bill</button>
-<button class="danger" id="deleteSaved">Delete Saved Bill</button>
+<h2>Bill / ரசீது</h2>
+<div class="tablewrap"><table><thead><tr><th>Item / பொருள்</th><th>Qty / அளவு</th><th>Amount / தொகை</th><th>Remove / நீக்கு</th></tr></thead><tbody id="rows"></tbody></table></div>
+<div id="empty" class="muted">No items yet / பொருட்கள் இல்லை</div>
+<div class="row"><span>Subtotal / உப மொத்தம்</span><b id="subtotal">₹0.00</b></div>
+<div class="grid">
+<div class="field"><label for="discount">Discount ₹ / தள்ளுபடி</label><input id="discount" type="number" min="0" value="0"></div>
+<div class="field"><label for="paid">Amount Paid ₹ / செலுத்திய தொகை</label><input id="paid" type="number" min="0" value="0"></div>
 </div>
+<div class="row"><span>Grand Total / இறுதி மொத்தம்</span><b class="big" id="grand">₹0.00</b></div>
+<div class="row"><span id="balanceLabel">Balance Due / மீதம் செலுத்த</span><b id="balance">₹0.00</b></div>
+<div class="actions">
+<button class="alt" id="save">Save Draft / வரைவைச் சேமி</button>
+<button id="finish">Finalize Bill / ரசீதை முடி</button>
+<button class="alt" id="copy">Copy Bill / ரசீதை நகலெடு</button>
+<button class="red" id="clear">Clear Bill / ரசீதை அழி</button>
+</div>
+<p id="msg" role="status"></p>
 </section>
 
-<footer>Grocery Calculator · மளிகைக் கணக்கீடு</footer>
-</div>
-
+<section class="card">
+<h2>Saved Bills / சேமித்த ரசீதுகள்</h2>
+<label for="saved">Select Bill / ரசீதைத் தேர்வு செய்க</label><select id="saved"></select>
+<div class="actions"><button class="alt" id="load">Load Bill / ரசீதைத் திற</button><button class="red" id="del">Delete Bill / ரசீதை நீக்கு</button></div>
+</section>
+<footer class="muted">Saved on this browser / இந்த உலாவியில் சேமிக்கப்படும்</footer>
+</main>
 <script>
-const groceries = [
-["Chilli powder","மிளகாய் தூள்",320,"mass"],
-["Dry red chilli","காய்ந்த மிளகாய்",280,"mass"],
-["Turmeric powder","மஞ்சள் தூள்",180,"mass"],
-["Coriander powder","மல்லித் தூள்",180,"mass"],
-["Black pepper","மிளகு",800,"mass"],
-["Cumin","சீரகம்",500,"mass"],
-["Mustard seeds","கடுகு",140,"mass"],
-["Salt","உப்பு",25,"mass"],
-["Rice","அரிசி",65,"mass"],
-["Sugar","சர்க்கரை",48,"mass"],
-["Toor dal","துவரம் பருப்பு",150,"mass"],
-["Urad dal","உளுத்தம் பருப்பு",130,"mass"],
-["Cooking oil","சமையல் எண்ணெய்",160,"volume"],
-["Gingelly oil","நல்லெண்ணெய்",300,"volume"],
-["Pickle","ஊறுகாய்",180,"mass"],
-["Mango pickle","மாங்காய் ஊறுகாய்",200,"mass"],
-["Lemon pickle","எலுமிச்சை ஊறுகாய்",180,"mass"],
-["Tamarind","புளி",100,"mass"],
-["Onion","வெங்காயம்",50,"mass"],
-["Potato","உருளைக்கிழங்கு",40,"mass"],
-["Tomato","தக்காளி",35,"mass"],
-["Ghee","நெய்",650,"volume"],
-["Tea powder","தேயிலைத் தூள்",350,"mass"],
-["Coffee powder","காபித் தூள்",500,"mass"],
-["Besan","கடலை மாவு",100,"mass"],
-["Wheat flour","கோதுமை மாவு",55,"mass"],
-["Rava","ரவை",60,"mass"],
-["Vermicelli","சேமியா",70,"mass"],
-["Soap","குளியல் சோப்பு",40,"piece"],
-["Dishwash bar","பாத்திரம் தேய்க்கும் சோப்பு",25,"piece"]
-].map((x,i)=>({id:i,en:x[0],ta:x[1],rate:x[2],type:x[3]}));
-
-const $ = id => document.getElementById(id);
-let bill = [];
-let savedBills = {};
-let selectedId = 0;
-
-function money(n){return "₹"+(Number(n)||0).toFixed(2)}
-function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
-function showMessage(s){$("message").textContent=s}
-function itemName(g){return g.en+" / "+g.ta}
-function optionsFor(g){
-  if(g.type==="mass") return [["g","Grams (g)"],["kg","Kilograms (kg)"]];
-  if(g.type==="volume") return [["ml","Millilitres (ml)"],["L","Litres (L)"]];
-  return [["piece","Pieces / எண்ணிக்கை"]];
-}
+const CKEY="groceryCatalogV3",BKEY="groceryBillsV3";
+const defaults=[
+["Chilli Powder","மிளகாய் தூள்",320,"mass",5],["Dry Red Chilli","காய்ந்த மிளகாய்",280,"mass",5],
+["Turmeric Powder","மஞ்சள் தூள்",180,"mass",5],["Coriander Powder","மல்லித் தூள்",180,"mass",5],
+["Black Pepper","மிளகு",800,"mass",2],["Cumin","சீரகம்",500,"mass",2],["Mustard Seeds","கடுகு",140,"mass",3],
+["Salt","உப்பு",25,"mass",10],["Rice","அரிசி",65,"mass",50],["Sugar","சர்க்கரை",48,"mass",20],
+["Toor Dal","துவரம் பருப்பு",150,"mass",10],["Urad Dal","உளுத்தம் பருப்பு",130,"mass",10],
+["Cooking Oil","சமையல் எண்ணெய்",160,"volume",10],["Gingelly Oil","நல்லெண்ணெய்",300,"volume",5],
+["Pickle","ஊறுகாய்",180,"mass",5],["Mango Pickle","மாங்காய் ஊறுகாய்",200,"mass",5],
+["Lemon Pickle","எலுமிச்சை ஊறுகாய்",180,"mass",5],["Tamarind","புளி",100,"mass",5],
+["Onion","வெங்காயம்",50,"mass",20],["Potato","உருளைக்கிழங்கு",40,"mass",20],
+["Tomato","தக்காளி",35,"mass",20],["Ghee","நெய்",650,"volume",3],
+["Tea Powder","தேயிலைத் தூள்",350,"mass",3],["Coffee Powder","காபித் தூள்",500,"mass",3],
+["Besan","கடலை மாவு",100,"mass",5],["Wheat Flour","கோதுமை மாவு",55,"mass",10],
+["Rava","ரவை",60,"mass",5],["Vermicelli","சேமியா",70,"mass",5],
+["Soap","குளியல் சோப்பு",40,"piece",24],["Dishwash Bar","பாத்திரம் தேய்க்கும் சோப்பு",25,"piece",24]
+].map((x,i)=>({id:"g"+i,en:x[0],ta:x[1],rate:x[2],type:x[3],stock:x[4]}));
+const $=id=>document.getElementById(id),money=n=>"₹"+Number(n||0).toFixed(2);
+const read=(key,fallback)=>{try{const v=JSON.parse(localStorage.getItem(key));return v??fallback}catch{return fallback}};
+let catalog=read(CKEY,null)||defaults,bills=read(BKEY,{}),bill=[],currentBill=null,selectedId="";
+function persistCatalog(){localStorage.setItem(CKEY,JSON.stringify(catalog))}
+function persistBills(){localStorage.setItem(BKEY,JSON.stringify(bills))}
+function msg(s){$("msg").textContent=s}
+function gname(g){return g.en+" / "+g.ta}
+function stockUnit(g){return g.type==="mass"?"kg":g.type==="volume"?"L":"piece"}
+function options(g){return g.type==="mass"?[["g","Grams / கிராம்"],["kg","Kilograms / கிலோ"]]:g.type==="volume"?[["ml","Millilitres / மில்லி"],["L","Litres / லிட்டர்"]]:[["piece","Pieces / எண்ணிக்கை"]]}
+function baseQty(q,u){return u==="g"||u==="ml"?q/1000:q}
 function fillItems(){
-  const q=$("search").value.trim().toLowerCase();
-  const matches=groceries.filter(g=>(g.en+" "+g.ta).toLowerCase().includes(q));
-  $("item").innerHTML=matches.map(g=>`<option value="${g.id}">${escapeHtml(itemName(g))}</option>`).join("");
-  if(!matches.length){
-    $("selectedName").textContent="No matching items / பொருள் இல்லை";
-    return;
-  }
-  if(!matches.some(g=>g.id===selectedId)) selectedId=matches[0].id;
-  $("item").value=selectedId;
-  chooseItem();
+ const q=$("search").value.trim().toLowerCase(),list=catalog.filter(g=>(g.en+" "+g.ta).toLowerCase().includes(q));
+ $("item").innerHTML=list.map(g=>`<option value="${g.id}">${gname(g)}</option>`).join("");
+ if(!list.length){selectedId="";$("rate").value="";$("unit").innerHTML="";$("stock").textContent="—";$("amount").textContent=money(0);return}
+ if(!list.some(g=>g.id===selectedId))selectedId=list[0].id;
+ $("item").value=selectedId;chooseItem();
 }
 function chooseItem(){
-  const g=groceries.find(x=>x.id===Number($("item").value));
-  if(!g)return;
-  selectedId=g.id;
-  $("selectedName").textContent=itemName(g);
-  $("rate").value=g.rate;
-  $("unit").innerHTML=optionsFor(g).map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("");
-  $("qty").value=g.type==="piece"?1:500;
-  calculateAmount();
+ const g=catalog.find(x=>x.id===$("item").value);if(!g)return;
+ selectedId=g.id;$("rate").value=g.rate;$("unit").innerHTML=options(g).map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("");
+ $("qty").value=g.type==="piece"?1:500;calc();
 }
-function calculateAmount(){
-  const g=groceries.find(x=>x.id===selectedId);
-  if(!g)return 0;
-  const rate=Math.max(0,Number($("rate").value)||0);
-  const qty=Math.max(0,Number($("qty").value)||0);
-  const unit=$("unit").value;
-  let amount=rate*qty;
-  if(unit==="g"||unit==="ml")amount=rate*qty/1000;
-  $("amount").textContent=money(amount);
-  return amount;
+function calc(){
+ const g=catalog.find(x=>x.id===selectedId);if(!g)return 0;
+ const q=Math.max(0,Number($("qty").value)||0),r=Math.max(0,Number($("rate").value)||0),u=$("unit").value;
+ const a=r*baseQty(q,u);$("amount").textContent=money(a);
+ $("stock").textContent=Number(g.stock).toFixed(g.type==="piece"?0:3)+" "+stockUnit(g)+" / "+gname(g);
+ return a;
 }
-function addItem(){
-  const g=groceries.find(x=>x.id===selectedId);
-  const qty=Number($("qty").value);
-  const rate=Number($("rate").value);
-  if(!g||!Number.isFinite(qty)||qty<=0||!Number.isFinite(rate)||rate<0){
-    showMessage("Enter a valid quantity and rate.");return;
-  }
-  g.rate=rate;
-  bill.push({id:g.id,name:itemName(g),qty,unit:$("unit").value,rate,amount:calculateAmount()});
-  renderBill();showMessage("Item added / பொருள் சேர்க்கப்பட்டது");
+function totals(){const sub=bill.reduce((s,x)=>s+x.amount,0),disc=Math.min(sub,Math.max(0,Number($("discount").value)||0)),grand=sub-disc,paid=Math.max(0,Number($("paid").value)||0);return{sub,disc,grand,paid,bal:Math.abs(grand-paid),due:paid<grand}}
+function render(){
+ $("rows").innerHTML=bill.map((x,i)=>`<tr><td>${x.name}</td><td>${x.qty} ${x.unit}</td><td>${money(x.amount)}</td><td><button class="red" data-rm="${i}">Remove / நீக்கு</button></td></tr>`).join("");
+ $("empty").hidden=!!bill.length;const t=totals();
+ $("subtotal").textContent=money(t.sub);$("grand").textContent=money(t.grand);$("balance").textContent=money(t.bal);
+ $("balanceLabel").textContent=t.due?"Balance Due / மீதம் செலுத்த":"Change / திருப்பித் தர";
 }
-function totals(){
-  const subtotal=bill.reduce((s,x)=>s+x.amount,0);
-  const discount=Math.min(subtotal,Math.max(0,Number($("discount").value)||0));
-  const grand=subtotal-discount;
-  const paid=Math.max(0,Number($("paid").value)||0);
-  return {subtotal,discount,grand,paid,balance:Math.abs(grand-paid),due:grand>=paid};
+function add(){
+ const g=catalog.find(x=>x.id===selectedId),q=Number($("qty").value),r=Number($("rate").value),u=$("unit").value;
+ if(!g||q<=0||r<0||!Number.isFinite(q)||!Number.isFinite(r)){msg("Enter a valid item, rate and quantity / சரியான விவரங்களை உள்ளிடவும்");return}
+ if(bill.some(x=>x.id===g.id)&&bill.find(x=>x.id===g.id).finalized){msg("This item is already in a finalized bill / முடிக்கப்பட்ட ரசீது");return}
+ const amount=r*baseQty(q,u),requested=baseQty(q,u),already=bill.filter(x=>x.id===g.id).reduce((s,x)=>s+baseQty(x.qty,x.unit),0);
+ if(requested+already>Number(g.stock)+1e-9){msg("Insufficient stock / இருப்பு போதவில்லை");return}
+ g.rate=r;persistCatalog();
+ bill.push({id:g.id,name:gname(g),qty:q,unit:u,rate:r,amount});
+ currentBill=null;render();msg("Item added / பொருள் சேர்க்கப்பட்டது");
 }
-function renderBill(){
-  $("billRows").innerHTML=bill.map((x,i)=>`<tr>
-    <td>${escapeHtml(x.name)}<div class="small">${money(x.rate)} / ${x.unit==="g"||x.unit==="kg"?"kg":x.unit==="ml"||x.unit==="L"?"L":"piece"}</div></td>
-    <td>${x.qty} ${x.unit}</td><td>${money(x.amount)}</td>
-    <td><button class="danger" data-remove="${i}" aria-label="Remove item">×</button></td></tr>`).join("");
-  $("empty").style.display=bill.length?"none":"block";
-  const t=totals();
-  $("subtotal").textContent=money(t.subtotal);
-  $("grand").textContent=money(t.grand);
-  $("balance").textContent=money(t.balance);
-  $("balanceLabel").textContent=t.due?"Balance due / மீதம் செலுத்த":"Change due / திருப்பித் தர";
+function billText(){const t=totals();return ["GROCERY BILL / மளிகை ரசீது",...bill.map(x=>`${x.name}: ${x.qty} ${x.unit} = ${money(x.amount)}`),"Subtotal / உப மொத்தம்: "+money(t.sub),"Discount / தள்ளுபடி: "+money(t.disc),"Grand Total / இறுதி மொத்தம்: "+money(t.grand),"Paid / செலுத்தியது: "+money(t.paid),(t.due?"Balance / மீதம்: ":"Change / திருப்பித் தர: ")+money(t.bal)].join("\n")}
+function refreshBills(){const keys=Object.keys(bills).sort().reverse();$("saved").innerHTML=keys.length?keys.map(k=>`<option value="${k}">${k}${bills[k].finalized?" · Finalized / முடிக்கப்பட்டது":" · Draft / வரைவு"}</option>`).join(""):'<option value="">No saved bills / ரசீதுகள் இல்லை</option>'}
+function saveDraft(){
+ if(!bill.length){msg("Add items first / முதலில் பொருட்களைச் சேர்க்கவும்");return}
+ const key=currentBill||("Bill "+new Date().toLocaleString());
+ bills[key]={bill:JSON.parse(JSON.stringify(bill)),discount:$("discount").value,paid:$("paid").value,finalized:!!(bills[key]&&bills[key].finalized)};
+ currentBill=key;persistBills();refreshBills();$("saved").value=key;msg("Draft saved / வரைவு சேமிக்கப்பட்டது");
 }
-function billText(){
-  const t=totals();
-  return ["GROCERY BILL / மளிகை ரசீது","-------------------------",
-    ...bill.map(x=>`${x.name}: ${x.qty} ${x.unit} x ${money(x.rate)} = ${money(x.amount)}`),
-    "Subtotal: "+money(t.subtotal),"Discount: "+money(t.discount),
-    "Grand Total: "+money(t.grand),"Paid: "+money(t.paid),
-    (t.due?"Balance due: ":"Change: ")+money(t.balance)].join("\n");
+function finish(){
+ if(!bill.length){msg("Add items first / முதலில் பொருட்களைச் சேர்க்கவும்");return}
+ if(currentBill&&bills[currentBill]?.finalized){msg("This bill is already finalized / ரசீது ஏற்கனவே முடிக்கப்பட்டது");return}
+ for(const line of bill){const g=catalog.find(x=>x.id===line.id);const needed=bill.filter(x=>x.id===line.id).reduce((s,x)=>s+baseQty(x.qty,x.unit),0);if(!g||needed>Number(g.stock)+1e-9){msg("Stock changed; review bill / இருப்பு மாறியுள்ளது");return}}
+ if(!confirm("Finalize bill and deduct stock? / ரசீதை முடித்து இருப்பைக் குறைக்கவா?"))return;
+ for(const line of bill){const g=catalog.find(x=>x.id===line.id);g.stock=Number((g.stock-baseQty(line.qty,line.unit)).toFixed(6))}
+ const key=currentBill||("Bill "+new Date().toLocaleString());
+ bills[key]={bill:JSON.parse(JSON.stringify(bill)),discount:$("discount").value,paid:$("paid").value,finalized:true};
+ try{persistCatalog();persistBills()}catch(e){msg("Save failed / சேமிக்க முடியவில்லை");return}
+ currentBill=key;refreshBills();$("saved").value=key;fillItems();msg("Bill finalized; stock updated / ரசீது முடிக்கப்பட்டது; இருப்பு புதுப்பிக்கப்பட்டது");
 }
-function refreshSaved(){
-  const keys=Object.keys(savedBills).sort((a,b)=>b.localeCompare(a));
-  $("saved").innerHTML=keys.length?keys.map(k=>`<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join(""):'<option value="">No saved bills</option>';
-}
-function persist(){
-  try{localStorage.setItem("groceryCalculatorBillsV2",JSON.stringify(savedBills));return true}
-  catch(e){showMessage("Could not save. Browser storage may be full.");return false}
-}
-function loadSaved(){
-  try{savedBills=JSON.parse(localStorage.getItem("groceryCalculatorBillsV2")||"{}")||{}}
-  catch(e){savedBills={}}
-  refreshSaved();
-}
-$("search").addEventListener("input",fillItems);
-$("item").addEventListener("change",chooseItem);
-["rate","qty","unit"].forEach(id=>$(id).addEventListener("input",calculateAmount));
-$("unit").addEventListener("change",calculateAmount);
-$("add").addEventListener("click",addItem);
-$("billRows").addEventListener("click",e=>{
-  const b=e.target.closest("[data-remove]");
-  if(b){bill.splice(Number(b.dataset.remove),1);renderBill()}
-});
-["discount","paid"].forEach(id=>$(id).addEventListener("input",renderBill));
-$("clear").addEventListener("click",()=>{
-  if(!confirm("Clear the current bill? / தற்போதைய ரசீதை நீக்கவா?"))return;
-  bill=[];$("discount").value=0;$("paid").value=0;renderBill();showMessage("Bill cleared.");
-});
-$("save").addEventListener("click",()=>{
-  if(!bill.length){showMessage("Add at least one item before saving.");return}
-  const key="Bill "+new Date().toLocaleString();
-  savedBills[key]={bill:JSON.parse(JSON.stringify(bill)),discount:$("discount").value,paid:$("paid").value};
-  if(persist()){refreshSaved();$("saved").value=key;showMessage("Bill saved on this device.");}
-});
-$("load").addEventListener("click",()=>{
-  const data=savedBills[$("saved").value];
-  if(!data){showMessage("Select a saved bill first.");return}
-  bill=JSON.parse(JSON.stringify(data.bill));
-  $("discount").value=data.discount||0;$("paid").value=data.paid||0;
-  renderBill();showMessage("Bill loaded.");
-});
-$("deleteSaved").addEventListener("click",()=>{
-  const key=$("saved").value;
-  if(!key||!savedBills[key]){showMessage("Select a saved bill first.");return}
-  if(!confirm("Delete this saved bill?"))return;
-  delete savedBills[key];persist();refreshSaved();showMessage("Saved bill deleted.");
-});
-$("copy").addEventListener("click",async()=>{
-  try{
-    await navigator.clipboard.writeText(billText());
-    showMessage("Bill copied.");
-  }catch(e){
-    const ta=document.createElement("textarea");ta.value=billText();
-    document.body.appendChild(ta);ta.select();
-    const ok=document.execCommand("copy");ta.remove();
-    showMessage(ok?"Bill copied.":"Copy failed. Please select and copy the bill text.");
-  }
-});
-loadSaved();
-fillItems();
-renderBill();
-</script>
-</body>
-</html>
+$("search").addEventListener("input",fillItems);$("item").addEventListener("change",chooseItem);
+["rate","qty","unit"].forEach(id=>$(id).addEventListener("input",calc));
+$("unit").addEventListener("change",calc);$("add").onclick=add;
+$("rows").onclick=e=>{const b=e.target.closest("[data-rm]");if(b){bill.splice(Number(b.dataset.rm),1);currentBill=null;render()}};
+["discount","paid"].forEach(id=>$(id).addEventListener("input",render));
+$("save").onclick=saveDraft;$("finish").onclick=finish;
+$("copy").onclick=async()=>{try{await navigator.clipboard.writeText(billText());msg("Copied / நகலெடுக்கப்பட்டது")}catch{msg("Copy unavailable / நகலெடுக்க முடியவில்லை")}};
+$("clear").onclick=()=>{if(confirm("Clear current bill? / தற்போதைய ரசீதை அழிக்கவா?")){bill=[];currentBill=null;$("discount").value=0;$("paid").value=0;render();msg("Cleared / அழிக்கப்பட்டது")}};
+$("load").onclick=()=>{const k=$("saved").value,b=bills[k];if(!b)return msg("Select a bill / ரசீதைத் தேர்வு செய்க");if(b.finalized){msg("Finalized bills are view-only; stock will not be deducted again / முடிக்கப்பட்ட ரசீதில் இருப்பு மீண்டும் குறைக்கப்படாது");return}bill=JSON.parse(JSON.stringify(b.bill));currentBill=k;$("discount").value=b.discount||0;$("paid").value=b.paid||0;render();msg("Draft loaded / வரைவு திறக்கப்பட்டது")};
+$("del").onclick=()=>{const k=$("saved").value;if(!k||!confirm("Delete saved bill? / சேமித்த ரசீதை நீக்கவா?"))return;delete bills[k];persistBills();refreshBills();msg("Deleted / நீக்கப்பட்டது")};
+try{if(!localStorage.getItem(CKEY))persistCatalog()}catch(e){}
+refreshBills();fillItems();render();
+</script></body></html>
