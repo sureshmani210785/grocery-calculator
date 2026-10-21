@@ -1,133 +1,301 @@
-<!doctype html>
+
+<!DOCTYPE html>
 <html lang="en">
 <head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
 <meta name="theme-color" content="#176b45">
-<meta name="description" content="Simple grocery rate and total calculator">
-<link rel="manifest" href="manifest.json">
-<title>Grocery Calculator</title>
+<title>Grocery Calculator | மளிகை கணக்கீடு</title>
 <style>
-:root{--green:#176b45;--light:#e8f5ed;--bg:#f5f7f5;--ink:#17221b;--muted:#647067;--line:#dce5de}
-*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
-header{background:var(--green);color:white;padding:22px 18px 20px;border-radius:0 0 22px 22px}
-header h1{font-size:23px;margin:0 0 5px}header p{margin:0;opacity:.9;font-size:14px}
-main{max-width:680px;margin:auto;padding:16px 14px 32px}
-.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:14px;box-shadow:0 2px 8px #162b1b08}
-.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}
-label{display:block;color:var(--muted);font-size:12px;font-weight:650;margin:0 0 5px}
-input{width:100%;min-width:0;padding:11px 10px;border:1px solid #cbd8ce;border-radius:10px;background:white;font:inherit;color:var(--ink)}
-input:focus{outline:2px solid #9dd5b2;border-color:var(--green)}
-.field{flex:1;min-width:0}.item{border:1px solid var(--line);padding:12px;border-radius:13px;margin-top:10px}
-.itemtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:700}
-.itemgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
-.itemtotal{display:flex;justify-content:space-between;margin-top:10px;color:var(--muted);font-size:14px}
-.itemtotal strong{color:var(--green);font-size:17px}
-button{border:0;border-radius:11px;padding:12px 14px;font:inherit;font-weight:700;cursor:pointer}
-.primary{background:var(--green);color:white}.secondary{background:var(--light);color:var(--green)}.danger{background:#fff0f0;color:#a32c2c;padding:6px 10px;font-size:13px}
-.full{width:100%;margin-top:10px}.grand{background:var(--light);border-radius:12px;padding:14px;margin:12px 0}
-.grand small{color:var(--muted);display:block}.grand strong{display:block;color:var(--green);font-size:30px;margin-top:3px}
-.summaryline{display:flex;justify-content:space-between;padding:5px 0}.muted{color:var(--muted);font-size:13px}
-.savedbill{border-top:1px solid var(--line);padding:10px 0}.savedbill:first-child{border-top:0}
-.hidden{display:none!important}
-@media(min-width:560px){main{padding-top:22px}.itemgrid{grid-template-columns:1.2fr 1fr 1fr}}
+:root{font-family:Arial,sans-serif;color:#20342b;background:#f3f7f4}
+*{box-sizing:border-box}
+body{margin:0;padding:16px}
+.app{max-width:850px;margin:auto}
+header{background:#176b45;color:white;padding:23px;border-radius:18px;margin-bottom:16px}
+header h1{margin:0 0 8px;font-size:25px}
+header p{margin:0;color:#e1f4e8}
+.card{background:white;border:1px solid #e0e9e2;border-radius:15px;padding:17px;margin-bottom:15px;box-shadow:0 3px 12px #193c2510}
+h2{font-size:18px;margin:0 0 15px}
+label{display:block;font-size:13px;font-weight:bold;margin:10px 0 6px}
+input,select,button{font:inherit}
+input,select{width:100%;padding:12px;border:1px solid #cad8ce;border-radius:9px;background:white;color:#20342b;min-height:44px}
+button{padding:12px 15px;border:0;border-radius:9px;background:#176b45;color:white;font-weight:bold;cursor:pointer;min-height:43px}
+button:active{opacity:.8}
+button.secondary{background:#e6f2e9;color:#176b45}
+button.danger{background:#fff0ef;color:#b42318}
+button.full{width:100%;margin-top:14px}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.ratebox{background:#eff8f1;padding:12px;border-radius:9px;margin-top:12px}
+.small{font-size:12px;color:#62766a}
+.row{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+.row>*{flex:1}
+table{width:100%;border-collapse:collapse;font-size:13px}
+th,td{padding:10px 5px;border-bottom:1px solid #e7eee8;text-align:left}
+th{color:#607367}
+td:last-child,th:last-child{text-align:right}
+td button{padding:7px 9px;min-height:32px}
+.billtable{overflow-x:auto}
+.totalrow{display:flex;justify-content:space-between;gap:10px;padding:9px 0;border-bottom:1px solid #edf1ee}
+.grand{font-size:21px;font-weight:bold;color:#176b45}
+#message{font-size:13px;margin-top:10px;color:#176b45}
+footer{text-align:center;color:#6d7d72;font-size:12px;padding:15px}
+@media(max-width:480px){body{padding:10px}.grid{gap:8px}header{padding:18px}.card{padding:13px}header h1{font-size:21px}}
 </style>
 </head>
 <body>
-<header><h1>🛒 Grocery Calculator</h1><p>Enter quantity and rate to calculate your bill</p></header>
-<main>
-  <section class="panel">
-    <label for="shop">Shop name (optional)</label><input id="shop" placeholder="e.g. Local grocery shop">
-    <div class="row between" style="margin-top:15px"><h2 style="font-size:18px;margin:0">Grocery items</h2><span class="muted" id="itemCount">0 items</span></div>
-    <div id="items"></div>
-    <button class="secondary full" id="addBtn">＋ Add grocery item</button>
-  </section>
-  <section class="panel">
-    <h2 style="font-size:18px;margin:0 0 12px">Bill summary</h2>
-    <div class="summaryline"><span>Subtotal</span><strong id="subtotal">₹0.00</strong></div>
-    <div class="row" style="margin-top:8px">
-      <div class="field"><label for="discount">Discount (₹)</label><input id="discount" type="number" min="0" step="0.01" value="0"></div>
-      <div class="field"><label for="paid">Amount paid (₹)</label><input id="paid" type="number" min="0" step="0.01" value="0"></div>
+<div class="app">
+<header>
+  <h1>🛒 Grocery Calculator</h1>
+  <p>மளிகை கணக்கீடு · English + தமிழ்</p>
+</header>
+
+<section class="card">
+<h2>1. Select Grocery / மளிகைப் பொருள்</h2>
+<label for="search">Find item / பொருளைத் தேடவும்</label>
+<input id="search" placeholder="Type English or Tamil name..." autocomplete="off">
+<label for="item">Grocery item / பொருள்</label>
+<select id="item"></select>
+
+<div class="ratebox">
+  <div><b id="selectedName">Select an item</b></div>
+  <div class="small" id="rateInfo">Default sample rate · You can edit the rate</div>
+  <div class="grid">
+    <div>
+      <label for="rate">Rate (₹ per kg/L/piece)</label>
+      <input id="rate" type="number" min="0" step="0.01" value="100">
     </div>
-    <div class="grand"><small>Grand total</small><strong id="grandTotal">₹0.00</strong></div>
-    <div class="summaryline"><span id="balanceLabel">Balance due</span><strong id="balance">₹0.00</strong></div>
-    <button class="primary full" id="saveBtn">Save bill</button>
-    <button class="secondary full" id="copyBtn">Copy bill details</button>
-    <button class="secondary full" id="newBtn">New / clear bill</button>
-    <p class="muted">Bills are saved on this device in this browser.</p>
-  </section>
-  <section class="panel">
-    <div class="row between"><h2 style="font-size:18px;margin:0">Saved bills</h2><button class="danger" id="clearSavedBtn">Delete all</button></div>
-    <div id="savedBills" style="margin-top:8px"></div>
-  </section>
-</main>
+    <div>
+      <label for="qty">Quantity</label>
+      <input id="qty" type="number" min="0.001" step="any" value="500">
+    </div>
+  </div>
+  <label for="unit">Quantity unit / அளவு</label>
+  <select id="unit">
+    <option value="g">Grams (g)</option>
+    <option value="kg">Kilograms (kg)</option>
+  </select>
+  <div class="totalrow"><span>Item amount / தொகை</span><b id="amount">₹0.00</b></div>
+</div>
+<button class="full" id="add">＋ Add to Bill / பட்டியலில் சேர்</button>
+<p class="small">Rates are example prices. Edit them to match your shop prices.</p>
+</section>
+
+<section class="card">
+<h2>2. Your Bill / ரசீது</h2>
+<div class="billtable">
+<table>
+<thead><tr><th>Item / பொருள்</th><th>Qty</th><th>Amount</th><th></th></tr></thead>
+<tbody id="billRows"></tbody>
+</table>
+</div>
+<div id="empty" class="small" style="padding:15px 0">No items added yet.</div>
+<div class="totalrow"><span>Subtotal / மொத்தம்</span><b id="subtotal">₹0.00</b></div>
+<div class="grid">
+  <div><label for="discount">Discount (₹)</label><input id="discount" type="number" min="0" step="0.01" value="0"></div>
+  <div><label for="paid">Amount paid (₹)</label><input id="paid" type="number" min="0" step="0.01" value="0"></div>
+</div>
+<div class="totalrow"><span>Grand total / இறுதித் தொகை</span><b class="grand" id="grand">₹0.00</b></div>
+<div class="totalrow"><span id="balanceLabel">Balance due / மீதம் செலுத்த</span><b id="balance">₹0.00</b></div>
+<div class="row" style="margin-top:14px">
+<button id="save">Save Bill</button>
+<button class="secondary" id="copy">Copy Bill</button>
+<button class="danger" id="clear">Clear Bill</button>
+</div>
+<p id="message" role="status"></p>
+</section>
+
+<section class="card">
+<h2>3. Saved Bills / சேமித்த ரசீதுகள்</h2>
+<label for="saved">Choose a saved bill</label>
+<select id="saved"><option value="">No saved bills</option></select>
+<div class="row" style="margin-top:12px">
+<button class="secondary" id="load">Load Bill</button>
+<button class="danger" id="deleteSaved">Delete Saved Bill</button>
+</div>
+</section>
+
+<footer>Grocery Calculator · மளிகைக் கணக்கீடு</footer>
+</div>
+
 <script>
+const groceries = [
+["Chilli powder","மிளகாய் தூள்",320,"mass"],
+["Dry red chilli","காய்ந்த மிளகாய்",280,"mass"],
+["Turmeric powder","மஞ்சள் தூள்",180,"mass"],
+["Coriander powder","மல்லித் தூள்",180,"mass"],
+["Black pepper","மிளகு",800,"mass"],
+["Cumin","சீரகம்",500,"mass"],
+["Mustard seeds","கடுகு",140,"mass"],
+["Salt","உப்பு",25,"mass"],
+["Rice","அரிசி",65,"mass"],
+["Sugar","சர்க்கரை",48,"mass"],
+["Toor dal","துவரம் பருப்பு",150,"mass"],
+["Urad dal","உளுத்தம் பருப்பு",130,"mass"],
+["Cooking oil","சமையல் எண்ணெய்",160,"volume"],
+["Gingelly oil","நல்லெண்ணெய்",300,"volume"],
+["Pickle","ஊறுகாய்",180,"mass"],
+["Mango pickle","மாங்காய் ஊறுகாய்",200,"mass"],
+["Lemon pickle","எலுமிச்சை ஊறுகாய்",180,"mass"],
+["Tamarind","புளி",100,"mass"],
+["Onion","வெங்காயம்",50,"mass"],
+["Potato","உருளைக்கிழங்கு",40,"mass"],
+["Tomato","தக்காளி",35,"mass"],
+["Ghee","நெய்",650,"volume"],
+["Tea powder","தேயிலைத் தூள்",350,"mass"],
+["Coffee powder","காபித் தூள்",500,"mass"],
+["Besan","கடலை மாவு",100,"mass"],
+["Wheat flour","கோதுமை மாவு",55,"mass"],
+["Rava","ரவை",60,"mass"],
+["Vermicelli","சேமியா",70,"mass"],
+["Soap","குளியல் சோப்பு",40,"piece"],
+["Dishwash bar","பாத்திரம் தேய்க்கும் சோப்பு",25,"piece"]
+].map((x,i)=>({id:i,en:x[0],ta:x[1],rate:x[2],type:x[3]}));
+
 const $ = id => document.getElementById(id);
-let items = [];
-let nextId = 1;
-const money = n => '₹' + (Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
-const safe = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
-function addItem(name='',qty='1',rate=''){
-  items.push({id:nextId++,name,qty,rate}); renderItems();
+let bill = [];
+let savedBills = {};
+let selectedId = 0;
+
+function money(n){return "₹"+(Number(n)||0).toFixed(2)}
+function escapeHtml(s){return String(s).replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]))}
+function showMessage(s){$("message").textContent=s}
+function itemName(g){return g.en+" / "+g.ta}
+function optionsFor(g){
+  if(g.type==="mass") return [["g","Grams (g)"],["kg","Kilograms (kg)"]];
+  if(g.type==="volume") return [["ml","Millilitres (ml)"],["L","Litres (L)"]];
+  return [["piece","Pieces / எண்ணிக்கை"]];
 }
-function removeItem(id){items=items.filter(x=>x.id!==id);renderItems();calc();}
-function renderItems(){
-  $('items').innerHTML=items.map((it,i)=>`
-    <div class="item" data-id="${it.id}">
-      <div class="itemtop"><span>Item ${i+1}</span><button class="danger" data-remove="${it.id}">Remove</button></div>
-      <div class="itemgrid">
-        <div><label>Grocery name</label><input data-key="name" value="${safe(it.name)}" placeholder="e.g. Rice"></div>
-        <div><label>Quantity (kg/L/pcs)</label><input data-key="qty" type="number" min="0" step="any" value="${safe(it.qty)}" placeholder="0"></div>
-        <div><label>Rate per unit (₹)</label><input data-key="rate" type="number" min="0" step="any" value="${safe(it.rate)}" placeholder="0.00"></div>
-      </div>
-      <div class="itemtotal"><span>Item total</span><strong id="line-${it.id}">${money((+it.qty||0)*(+it.rate||0))}</strong></div>
-    </div>`).join('');
-  $('itemCount').textContent=`${items.length} item${items.length===1?'':'s'}`;
-  $('items').querySelectorAll('input').forEach(input=>input.addEventListener('input',e=>{
-    const card=e.target.closest('.item'), id=+card.dataset.id, key=e.target.dataset.key;
-    const item=items.find(x=>x.id===id); if(item)item[key]=e.target.value;
-    calc();
-  }));
-  $('items').querySelectorAll('[data-remove]').forEach(btn=>btn.addEventListener('click',()=>removeItem(+btn.dataset.remove)));
-  calc();
+function fillItems(){
+  const q=$("search").value.trim().toLowerCase();
+  const matches=groceries.filter(g=>(g.en+" "+g.ta).toLowerCase().includes(q));
+  $("item").innerHTML=matches.map(g=>`<option value="${g.id}">${escapeHtml(itemName(g))}</option>`).join("");
+  if(!matches.length){
+    $("selectedName").textContent="No matching items / பொருள் இல்லை";
+    return;
+  }
+  if(!matches.some(g=>g.id===selectedId)) selectedId=matches[0].id;
+  $("item").value=selectedId;
+  chooseItem();
+}
+function chooseItem(){
+  const g=groceries.find(x=>x.id===Number($("item").value));
+  if(!g)return;
+  selectedId=g.id;
+  $("selectedName").textContent=itemName(g);
+  $("rate").value=g.rate;
+  $("unit").innerHTML=optionsFor(g).map(o=>`<option value="${o[0]}">${o[1]}</option>`).join("");
+  $("qty").value=g.type==="piece"?1:500;
+  calculateAmount();
+}
+function calculateAmount(){
+  const g=groceries.find(x=>x.id===selectedId);
+  if(!g)return 0;
+  const rate=Math.max(0,Number($("rate").value)||0);
+  const qty=Math.max(0,Number($("qty").value)||0);
+  const unit=$("unit").value;
+  let amount=rate*qty;
+  if(unit==="g"||unit==="ml")amount=rate*qty/1000;
+  $("amount").textContent=money(amount);
+  return amount;
+}
+function addItem(){
+  const g=groceries.find(x=>x.id===selectedId);
+  const qty=Number($("qty").value);
+  const rate=Number($("rate").value);
+  if(!g||!Number.isFinite(qty)||qty<=0||!Number.isFinite(rate)||rate<0){
+    showMessage("Enter a valid quantity and rate.");return;
+  }
+  g.rate=rate;
+  bill.push({id:g.id,name:itemName(g),qty,unit:$("unit").value,rate,amount:calculateAmount()});
+  renderBill();showMessage("Item added / பொருள் சேர்க்கப்பட்டது");
 }
 function totals(){
-  const subtotal=items.reduce((s,x)=>s+Math.max(0,+x.qty||0)*Math.max(0,+x.rate||0),0);
-  const discount=Math.min(subtotal,Math.max(0,+$('discount').value||0));
-  const total=subtotal-discount, paid=Math.max(0,+$('paid').value||0);
-  return {subtotal,discount,total,paid,balance:Math.abs(total-paid),overpaid:paid>total};
+  const subtotal=bill.reduce((s,x)=>s+x.amount,0);
+  const discount=Math.min(subtotal,Math.max(0,Number($("discount").value)||0));
+  const grand=subtotal-discount;
+  const paid=Math.max(0,Number($("paid").value)||0);
+  return {subtotal,discount,grand,paid,balance:Math.abs(grand-paid),due:grand>=paid};
 }
-function calc(){
-  items.forEach(it=>{const el=$('line-'+it.id);if(el)el.textContent=money(Math.max(0,+it.qty||0)*Math.max(0,+it.rate||0));});
-  const t=totals();$('subtotal').textContent=money(t.subtotal);$('grandTotal').textContent=money(t.total);
-  $('balanceLabel').textContent=t.overpaid?'Change to return':'Balance due';$('balance').textContent=money(t.balance);
+function renderBill(){
+  $("billRows").innerHTML=bill.map((x,i)=>`<tr>
+    <td>${escapeHtml(x.name)}<div class="small">${money(x.rate)} / ${x.unit==="g"||x.unit==="kg"?"kg":x.unit==="ml"||x.unit==="L"?"L":"piece"}</div></td>
+    <td>${x.qty} ${x.unit}</td><td>${money(x.amount)}</td>
+    <td><button class="danger" data-remove="${i}" aria-label="Remove item">×</button></td></tr>`).join("");
+  $("empty").style.display=bill.length?"none":"block";
+  const t=totals();
+  $("subtotal").textContent=money(t.subtotal);
+  $("grand").textContent=money(t.grand);
+  $("balance").textContent=money(t.balance);
+  $("balanceLabel").textContent=t.due?"Balance due / மீதம் செலுத்த":"Change due / திருப்பித் தர";
 }
 function billText(){
   const t=totals();
-  return `GROCERY BILL${$('shop').value.trim()?'\\nShop: '+$('shop').value.trim():''}\\n`+
-    items.map(x=>`${x.name||'Item'} | Qty: ${x.qty||0} | Rate: ${money(+x.rate||0)} | Total: ${money((+x.qty||0)*(+x.rate||0))}`).join('\\n')+
-    `\\nSubtotal: ${money(t.subtotal)}\\nDiscount: ${money(t.discount)}\\nGrand total: ${money(t.total)}\\nPaid: ${money(t.paid)}\\n${t.overpaid?'Change to return':'Balance due'}: ${money(t.balance)}`;
+  return ["GROCERY BILL / மளிகை ரசீது","-------------------------",
+    ...bill.map(x=>`${x.name}: ${x.qty} ${x.unit} x ${money(x.rate)} = ${money(x.amount)}`),
+    "Subtotal: "+money(t.subtotal),"Discount: "+money(t.discount),
+    "Grand Total: "+money(t.grand),"Paid: "+money(t.paid),
+    (t.due?"Balance due: ":"Change: ")+money(t.balance)].join("\n");
 }
-function getSaved(){try{return JSON.parse(localStorage.getItem('groceryBills')||'[]')}catch{return []}}
-function setSaved(data){localStorage.setItem('groceryBills',JSON.stringify(data))}
-function saveBill(){
-  const t=totals(); if(!items.some(x=>x.name.trim())){alert('Please enter at least one grocery item name.');return}
-  const saved=getSaved();saved.unshift({id:Date.now(),date:new Date().toLocaleString(),shop:$('shop').value,lines:items.map(x=>({...x})),...t,text:billText()});
-  setSaved(saved);renderSaved();alert('Bill saved on this device.');
+function refreshSaved(){
+  const keys=Object.keys(savedBills).sort((a,b)=>b.localeCompare(a));
+  $("saved").innerHTML=keys.length?keys.map(k=>`<option value="${escapeHtml(k)}">${escapeHtml(k)}</option>`).join(""):'<option value="">No saved bills</option>';
 }
-function renderSaved(){
-  const saved=getSaved();
-  $('savedBills').innerHTML=saved.length?saved.map(b=>`<div class="savedbill"><div class="row between"><strong>${safe(b.shop||'Grocery bill')}</strong><strong>${money(b.total)}</strong></div><div class="muted">${safe(b.date)} · ${(b.lines||[]).length} items</div><div class="row" style="margin-top:8px"><button class="secondary" data-load="${b.id}">View / load</button><button class="danger" data-delete="${b.id}">Delete</button></div></div>`).join(''):'<p class="muted">No saved bills yet.</p>';
-  $('savedBills').querySelectorAll('[data-delete]').forEach(btn=>btn.onclick=()=>{setSaved(getSaved().filter(b=>b.id!==+btn.dataset.delete));renderSaved()});
-  $('savedBills').querySelectorAll('[data-load]').forEach(btn=>btn.onclick=()=>{const b=getSaved().find(x=>x.id===+btn.dataset.load);if(!b)return;$('shop').value=b.shop||'';items=(b.lines||[]).map(x=>({...x,id:nextId++}));$('discount').value=b.discount||0;$('paid').value=b.paid||0;renderItems();window.scrollTo({top:0,behavior:'smooth'})});
+function persist(){
+  try{localStorage.setItem("groceryCalculatorBillsV2",JSON.stringify(savedBills));return true}
+  catch(e){showMessage("Could not save. Browser storage may be full.");return false}
 }
-$('addBtn').onclick=()=>addItem();
-$('discount').oninput=calc;$('paid').oninput=calc;
-$('saveBtn').onclick=saveBill;
-$('copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText(billText());alert('Bill details copied.')}catch{prompt('Copy your bill details:',billText())}};
-$('newBtn').onclick=()=>{if(confirm('Start a new bill? The saved bills will remain.')){items=[];$('shop').value='';$('discount').value='0';$('paid').value='0';addItem()}};
-$('clearSavedBtn').onclick=()=>{if(confirm('Delete all saved bills from this device?')){localStorage.removeItem('groceryBills');renderSaved()}};
-addItem('Rice','5','60');addItem('Sugar','2','45');renderSaved();
-if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+function loadSaved(){
+  try{savedBills=JSON.parse(localStorage.getItem("groceryCalculatorBillsV2")||"{}")||{}}
+  catch(e){savedBills={}}
+  refreshSaved();
+}
+$("search").addEventListener("input",fillItems);
+$("item").addEventListener("change",chooseItem);
+["rate","qty","unit"].forEach(id=>$(id).addEventListener("input",calculateAmount));
+$("unit").addEventListener("change",calculateAmount);
+$("add").addEventListener("click",addItem);
+$("billRows").addEventListener("click",e=>{
+  const b=e.target.closest("[data-remove]");
+  if(b){bill.splice(Number(b.dataset.remove),1);renderBill()}
+});
+["discount","paid"].forEach(id=>$(id).addEventListener("input",renderBill));
+$("clear").addEventListener("click",()=>{
+  if(!confirm("Clear the current bill? / தற்போதைய ரசீதை நீக்கவா?"))return;
+  bill=[];$("discount").value=0;$("paid").value=0;renderBill();showMessage("Bill cleared.");
+});
+$("save").addEventListener("click",()=>{
+  if(!bill.length){showMessage("Add at least one item before saving.");return}
+  const key="Bill "+new Date().toLocaleString();
+  savedBills[key]={bill:JSON.parse(JSON.stringify(bill)),discount:$("discount").value,paid:$("paid").value};
+  if(persist()){refreshSaved();$("saved").value=key;showMessage("Bill saved on this device.");}
+});
+$("load").addEventListener("click",()=>{
+  const data=savedBills[$("saved").value];
+  if(!data){showMessage("Select a saved bill first.");return}
+  bill=JSON.parse(JSON.stringify(data.bill));
+  $("discount").value=data.discount||0;$("paid").value=data.paid||0;
+  renderBill();showMessage("Bill loaded.");
+});
+$("deleteSaved").addEventListener("click",()=>{
+  const key=$("saved").value;
+  if(!key||!savedBills[key]){showMessage("Select a saved bill first.");return}
+  if(!confirm("Delete this saved bill?"))return;
+  delete savedBills[key];persist();refreshSaved();showMessage("Saved bill deleted.");
+});
+$("copy").addEventListener("click",async()=>{
+  try{
+    await navigator.clipboard.writeText(billText());
+    showMessage("Bill copied.");
+  }catch(e){
+    const ta=document.createElement("textarea");ta.value=billText();
+    document.body.appendChild(ta);ta.select();
+    const ok=document.execCommand("copy");ta.remove();
+    showMessage(ok?"Bill copied.":"Copy failed. Please select and copy the bill text.");
+  }
+});
+loadSaved();
+fillItems();
+renderBill();
 </script>
-</body></html>
+</body>
+</html>
