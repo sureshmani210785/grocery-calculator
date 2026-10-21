@@ -1,0 +1,10 @@
+{
+  "name": "Grocery Rate and Total Calculator",
+  "short_name": "Grocery Calc",
+  "description": "Calculate grocery quantities, rates, totals and save bills.",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#f5f7f5",
+  "theme_color": "#176b45",
+  "icons": []
+}

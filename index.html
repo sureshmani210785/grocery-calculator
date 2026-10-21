@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#176b45">
+<meta name="description" content="Simple grocery rate and total calculator">
+<link rel="manifest" href="manifest.json">
+<title>Grocery Calculator</title>
+<style>
+:root{--green:#176b45;--light:#e8f5ed;--bg:#f5f7f5;--ink:#17221b;--muted:#647067;--line:#dce5de}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--ink);font:16px system-ui,-apple-system,Segoe UI,sans-serif}
+header{background:var(--green);color:white;padding:22px 18px 20px;border-radius:0 0 22px 22px}
+header h1{font-size:23px;margin:0 0 5px}header p{margin:0;opacity:.9;font-size:14px}
+main{max-width:680px;margin:auto;padding:16px 14px 32px}
+.panel{background:white;border:1px solid var(--line);border-radius:16px;padding:15px;margin-bottom:14px;box-shadow:0 2px 8px #162b1b08}
+.row{display:flex;gap:10px;align-items:center}.between{justify-content:space-between}
+label{display:block;color:var(--muted);font-size:12px;font-weight:650;margin:0 0 5px}
+input{width:100%;min-width:0;padding:11px 10px;border:1px solid #cbd8ce;border-radius:10px;background:white;font:inherit;color:var(--ink)}
+input:focus{outline:2px solid #9dd5b2;border-color:var(--green)}
+.field{flex:1;min-width:0}.item{border:1px solid var(--line);padding:12px;border-radius:13px;margin-top:10px}
+.itemtop{display:flex;justify-content:space-between;align-items:center;margin-bottom:10px;font-weight:700}
+.itemgrid{display:grid;grid-template-columns:1fr 1fr;gap:9px}
+.itemtotal{display:flex;justify-content:space-between;margin-top:10px;color:var(--muted);font-size:14px}
+.itemtotal strong{color:var(--green);font-size:17px}
+button{border:0;border-radius:11px;padding:12px 14px;font:inherit;font-weight:700;cursor:pointer}
+.primary{background:var(--green);color:white}.secondary{background:var(--light);color:var(--green)}.danger{background:#fff0f0;color:#a32c2c;padding:6px 10px;font-size:13px}
+.full{width:100%;margin-top:10px}.grand{background:var(--light);border-radius:12px;padding:14px;margin:12px 0}
+.grand small{color:var(--muted);display:block}.grand strong{display:block;color:var(--green);font-size:30px;margin-top:3px}
+.summaryline{display:flex;justify-content:space-between;padding:5px 0}.muted{color:var(--muted);font-size:13px}
+.savedbill{border-top:1px solid var(--line);padding:10px 0}.savedbill:first-child{border-top:0}
+.hidden{display:none!important}
+@media(min-width:560px){main{padding-top:22px}.itemgrid{grid-template-columns:1.2fr 1fr 1fr}}
+</style>
+</head>
+<body>
+<header><h1>🛒 Grocery Calculator</h1><p>Enter quantity and rate to calculate your bill</p></header>
+<main>
+  <section class="panel">
+    <label for="shop">Shop name (optional)</label><input id="shop" placeholder="e.g. Local grocery shop">
+    <div class="row between" style="margin-top:15px"><h2 style="font-size:18px;margin:0">Grocery items</h2><span class="muted" id="itemCount">0 items</span></div>
+    <div id="items"></div>
+    <button class="secondary full" id="addBtn">＋ Add grocery item</button>
+  </section>
+  <section class="panel">
+    <h2 style="font-size:18px;margin:0 0 12px">Bill summary</h2>
+    <div class="summaryline"><span>Subtotal</span><strong id="subtotal">₹0.00</strong></div>
+    <div class="row" style="margin-top:8px">
+      <div class="field"><label for="discount">Discount (₹)</label><input id="discount" type="number" min="0" step="0.01" value="0"></div>
+      <div class="field"><label for="paid">Amount paid (₹)</label><input id="paid" type="number" min="0" step="0.01" value="0"></div>
+    </div>
+    <div class="grand"><small>Grand total</small><strong id="grandTotal">₹0.00</strong></div>
+    <div class="summaryline"><span id="balanceLabel">Balance due</span><strong id="balance">₹0.00</strong></div>
+    <button class="primary full" id="saveBtn">Save bill</button>
+    <button class="secondary full" id="copyBtn">Copy bill details</button>
+    <button class="secondary full" id="newBtn">New / clear bill</button>
+    <p class="muted">Bills are saved on this device in this browser.</p>
+  </section>
+  <section class="panel">
+    <div class="row between"><h2 style="font-size:18px;margin:0">Saved bills</h2><button class="danger" id="clearSavedBtn">Delete all</button></div>
+    <div id="savedBills" style="margin-top:8px"></div>
+  </section>
+</main>
+<script>
+const $ = id => document.getElementById(id);
+let items = [];
+let nextId = 1;
+const money = n => '₹' + (Number(n)||0).toLocaleString('en-IN',{minimumFractionDigits:2,maximumFractionDigits:2});
+const safe = s => String(s).replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function addItem(name='',qty='1',rate=''){
+  items.push({id:nextId++,name,qty,rate}); renderItems();
+}
+function removeItem(id){items=items.filter(x=>x.id!==id);renderItems();calc();}
+function renderItems(){
+  $('items').innerHTML=items.map((it,i)=>`
+    <div class="item" data-id="${it.id}">
+      <div class="itemtop"><span>Item ${i+1}</span><button class="danger" data-remove="${it.id}">Remove</button></div>
+      <div class="itemgrid">
+        <div><label>Grocery name</label><input data-key="name" value="${safe(it.name)}" placeholder="e.g. Rice"></div>
+        <div><label>Quantity (kg/L/pcs)</label><input data-key="qty" type="number" min="0" step="any" value="${safe(it.qty)}" placeholder="0"></div>
+        <div><label>Rate per unit (₹)</label><input data-key="rate" type="number" min="0" step="any" value="${safe(it.rate)}" placeholder="0.00"></div>
+      </div>
+      <div class="itemtotal"><span>Item total</span><strong id="line-${it.id}">${money((+it.qty||0)*(+it.rate||0))}</strong></div>
+    </div>`).join('');
+  $('itemCount').textContent=`${items.length} item${items.length===1?'':'s'}`;
+  $('items').querySelectorAll('input').forEach(input=>input.addEventListener('input',e=>{
+    const card=e.target.closest('.item'), id=+card.dataset.id, key=e.target.dataset.key;
+    const item=items.find(x=>x.id===id); if(item)item[key]=e.target.value;
+    calc();
+  }));
+  $('items').querySelectorAll('[data-remove]').forEach(btn=>btn.addEventListener('click',()=>removeItem(+btn.dataset.remove)));
+  calc();
+}
+function totals(){
+  const subtotal=items.reduce((s,x)=>s+Math.max(0,+x.qty||0)*Math.max(0,+x.rate||0),0);
+  const discount=Math.min(subtotal,Math.max(0,+$('discount').value||0));
+  const total=subtotal-discount, paid=Math.max(0,+$('paid').value||0);
+  return {subtotal,discount,total,paid,balance:Math.abs(total-paid),overpaid:paid>total};
+}
+function calc(){
+  items.forEach(it=>{const el=$('line-'+it.id);if(el)el.textContent=money(Math.max(0,+it.qty||0)*Math.max(0,+it.rate||0));});
+  const t=totals();$('subtotal').textContent=money(t.subtotal);$('grandTotal').textContent=money(t.total);
+  $('balanceLabel').textContent=t.overpaid?'Change to return':'Balance due';$('balance').textContent=money(t.balance);
+}
+function billText(){
+  const t=totals();
+  return `GROCERY BILL${$('shop').value.trim()?'\\nShop: '+$('shop').value.trim():''}\\n`+
+    items.map(x=>`${x.name||'Item'} | Qty: ${x.qty||0} | Rate: ${money(+x.rate||0)} | Total: ${money((+x.qty||0)*(+x.rate||0))}`).join('\\n')+
+    `\\nSubtotal: ${money(t.subtotal)}\\nDiscount: ${money(t.discount)}\\nGrand total: ${money(t.total)}\\nPaid: ${money(t.paid)}\\n${t.overpaid?'Change to return':'Balance due'}: ${money(t.balance)}`;
+}
+function getSaved(){try{return JSON.parse(localStorage.getItem('groceryBills')||'[]')}catch{return []}}
+function setSaved(data){localStorage.setItem('groceryBills',JSON.stringify(data))}
+function saveBill(){
+  const t=totals(); if(!items.some(x=>x.name.trim())){alert('Please enter at least one grocery item name.');return}
+  const saved=getSaved();saved.unshift({id:Date.now(),date:new Date().toLocaleString(),shop:$('shop').value,lines:items.map(x=>({...x})),...t,text:billText()});
+  setSaved(saved);renderSaved();alert('Bill saved on this device.');
+}
+function renderSaved(){
+  const saved=getSaved();
+  $('savedBills').innerHTML=saved.length?saved.map(b=>`<div class="savedbill"><div class="row between"><strong>${safe(b.shop||'Grocery bill')}</strong><strong>${money(b.total)}</strong></div><div class="muted">${safe(b.date)} · ${(b.lines||[]).length} items</div><div class="row" style="margin-top:8px"><button class="secondary" data-load="${b.id}">View / load</button><button class="danger" data-delete="${b.id}">Delete</button></div></div>`).join(''):'<p class="muted">No saved bills yet.</p>';
+  $('savedBills').querySelectorAll('[data-delete]').forEach(btn=>btn.onclick=()=>{setSaved(getSaved().filter(b=>b.id!==+btn.dataset.delete));renderSaved()});
+  $('savedBills').querySelectorAll('[data-load]').forEach(btn=>btn.onclick=()=>{const b=getSaved().find(x=>x.id===+btn.dataset.load);if(!b)return;$('shop').value=b.shop||'';items=(b.lines||[]).map(x=>({...x,id:nextId++}));$('discount').value=b.discount||0;$('paid').value=b.paid||0;renderItems();window.scrollTo({top:0,behavior:'smooth'})});
+}
+$('addBtn').onclick=()=>addItem();
+$('discount').oninput=calc;$('paid').oninput=calc;
+$('saveBtn').onclick=saveBill;
+$('copyBtn').onclick=async()=>{try{await navigator.clipboard.writeText(billText());alert('Bill details copied.')}catch{prompt('Copy your bill details:',billText())}};
+$('newBtn').onclick=()=>{if(confirm('Start a new bill? The saved bills will remain.')){items=[];$('shop').value='';$('discount').value='0';$('paid').value='0';addItem()}};
+$('clearSavedBtn').onclick=()=>{if(confirm('Delete all saved bills from this device?')){localStorage.removeItem('groceryBills');renderSaved()}};
+addItem('Rice','5','60');addItem('Sugar','2','45');renderSaved();
+if('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+</script>
+</body></html>
