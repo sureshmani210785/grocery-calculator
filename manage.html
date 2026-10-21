@@ -1,1 +1,147 @@
 
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="theme-color" content="#176b45">
+<title>Manage Grocery Items / மளிகைப் பொருட்கள் நிர்வாகம்</title>
+<style>
+*{box-sizing:border-box}body{margin:0;padding:14px;background:#f2f7f3;color:#20382b;font:15px Arial,sans-serif}
+main{max-width:850px;margin:auto}header{background:#176b45;color:white;padding:20px;border-radius:15px}
+h1{font-size:23px;margin:0 0 10px}h2{font-size:19px;margin-top:0}
+nav,.actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+a,button{background:#176b45;color:white;padding:11px 13px;border:0;border-radius:8px;text-decoration:none;cursor:pointer;font-weight:bold}
+a.alt,button.alt{background:#e3f1e7;color:#176b45}button.red{background:#fff0ee;color:#a32620}
+.card{background:white;border:1px solid #dce8df;border-radius:14px;padding:16px;margin:14px 0}
+label{display:block;font-weight:bold;font-size:13px;margin:12px 0 6px}
+input,select{width:100%;padding:11px;border:1px solid #c9d8cd;border-radius:8px;font:inherit;min-height:43px}
+.grid{display:flex;gap:10px;flex-wrap:wrap}.field{flex:1;min-width:145px}
+.tablewrap{overflow-x:auto}table{width:100%;border-collapse:collapse;font-size:13px}td,th{text-align:left;padding:9px 5px;border-bottom:1px solid #e6ede8}td button{padding:7px}
+.muted{font-size:12px;color:#65786b}#msg{color:#176b45;white-space:pre-wrap}
+@media(max-width:480px){body{padding:9px}.card{padding:12px}}
+</style>
+</head>
+<body><main>
+<header>
+<h1>📦 Manage Grocery Items / மளிகைப் பொருட்கள் நிர்வாகம்</h1>
+<div>Manage names, rates and stock / பெயர், விலை மற்றும் இருப்பை நிர்வகிக்கவும்</div>
+<nav><a href="index.html">Calculator / கணிப்பான்</a><a class="alt" href="manage.html">Manage Items / பொருட்களை நிர்வகி</a></nav>
+</header>
+
+<section class="card">
+<h2 id="formTitle">Add Grocery Item / மளிகைப் பொருளைச் சேர்</h2>
+<input id="editId" type="hidden">
+<div class="grid">
+<div class="field"><label for="en">English Name / ஆங்கிலப் பெயர்</label><input id="en" placeholder="Example: Chilli Powder"></div>
+<div class="field"><label for="ta">Tamil Name / தமிழ் பெயர்</label><input id="ta" placeholder="உதாரணம்: மிளகாய் தூள்"></div>
+</div>
+<div class="grid">
+<div class="field"><label for="rate">Rate ₹ per kg/L/piece / அலகு விலை</label><input id="rate" type="number" min="0" step=".01" placeholder="100"></div>
+<div class="field"><label for="type">Rate Unit / விலை அலகு</label><select id="type"><option value="mass">Kilogram / கிலோ</option><option value="volume">Litre / லிட்டர்</option><option value="piece">Piece / எண்ணிக்கை</option></select></div>
+</div>
+<label for="stock">Available Stock (kg, L or pieces) / இருப்பு</label>
+<input id="stock" type="number" min="0" step="any" placeholder="Example: 5">
+<p class="muted">For kilogram items enter stock in kg; for litre items enter litres; for piece items enter the number of pieces. / கிலோ பொருட்களுக்கு கிலோவிலும், திரவங்களுக்கு லிட்டரிலும், எண்ணிக்கைப் பொருட்களுக்கு எண்ணிக்கையிலும் உள்ளிடவும்.</p>
+<div class="actions">
+<button id="save">Save Item / பொருளைச் சேமி</button>
+<button id="cancel" class="alt">Cancel / ரத்து செய்</button>
+</div>
+<p id="msg" role="status"></p>
+</section>
+
+<section class="card">
+<h2>Grocery List / மளிகைப் பட்டியல்</h2>
+<label for="search">Search Items / பொருட்களைத் தேடு</label><input id="search" placeholder="English or தமிழ்">
+<div class="tablewrap"><table>
+<thead><tr><th>Item / பொருள்</th><th>Rate / விலை</th><th>Stock / இருப்பு</th><th>Actions / செயல்கள்</th></tr></thead>
+<tbody id="rows"></tbody>
+</table></div>
+<p id="empty" class="muted"></p>
+</section>
+<footer class="muted">Changes are stored in this browser / மாற்றங்கள் இந்த உலாவியில் சேமிக்கப்படும்.</footer>
+</main>
+<script>
+const KEY="groceryCatalogV3";
+const $=id=>document.getElementById(id);
+const defaults=[
+["Chilli Powder","மிளகாய் தூள்",320,"mass",5],["Dry Red Chilli","காய்ந்த மிளகாய்",280,"mass",5],
+["Turmeric Powder","மஞ்சள் தூள்",180,"mass",5],["Coriander Powder","மல்லித் தூள்",180,"mass",5],
+["Black Pepper","மிளகு",800,"mass",2],["Cumin","சீரகம்",500,"mass",2],["Mustard Seeds","கடுகு",140,"mass",3],
+["Salt","உப்பு",25,"mass",10],["Rice","அரிசி",65,"mass",50],["Sugar","சர்க்கரை",48,"mass",20],
+["Toor Dal","துவரம் பருப்பு",150,"mass",10],["Urad Dal","உளுத்தம் பருப்பு",130,"mass",10],
+["Cooking Oil","சமையல் எண்ணெய்",160,"volume",10],["Gingelly Oil","நல்லெண்ணெய்",300,"volume",5],
+["Pickle","ஊறுகாய்",180,"mass",5],["Mango Pickle","மாங்காய் ஊறுகாய்",200,"mass",5],
+["Lemon Pickle","எலுமிச்சை ஊறுகாய்",180,"mass",5],["Tamarind","புளி",100,"mass",5],
+["Onion","வெங்காயம்",50,"mass",20],["Potato","உருளைக்கிழங்கு",40,"mass",20],
+["Tomato","தக்காளி",35,"mass",20],["Ghee","நெய்",650,"volume",3],
+["Tea Powder","தேயிலைத் தூள்",350,"mass",3],["Coffee Powder","காபித் தூள்",500,"mass",3],
+["Besan","கடலை மாவு",100,"mass",5],["Wheat Flour","கோதுமை மாவு",55,"mass",10],
+["Rava","ரவை",60,"mass",5],["Vermicelli","சேமியா",70,"mass",5],
+["Soap","குளியல் சோப்பு",40,"piece",24],["Dishwash Bar","பாத்திரம் தேய்க்கும் சோப்பு",25,"piece",24]
+].map((x,i)=>({id:"g"+i,en:x[0],ta:x[1],rate:x[2],type:x[3],stock:x[4]}));
+function read(){
+ try{const v=JSON.parse(localStorage.getItem(KEY));return Array.isArray(v)?v:defaults}
+ catch(e){return defaults}
+}
+let items=read();
+function persist(){localStorage.setItem(KEY,JSON.stringify(items))}
+function message(s){$("msg").textContent=s}
+function money(n){return "₹"+Number(n||0).toFixed(2)}
+function unitName(g){return g.type==="mass"?"kg":g.type==="volume"?"L":"piece"}
+function render(){
+ const q=$("search").value.trim().toLowerCase();
+ const list=items.filter(g=>(g.en+" "+g.ta).toLowerCase().includes(q));
+ $("rows").innerHTML=list.map(g=>`<tr>
+ <td>${g.en} / ${g.ta}</td><td>${money(g.rate)} / ${unitName(g)}</td>
+ <td>${g.stock} ${unitName(g)}</td>
+ <td><button class="alt" data-edit="${g.id}">Edit / திருத்து</button>
+ <button class="red" data-delete="${g.id}">Delete / நீக்கு</button></td></tr>`).join("");
+ $("empty").textContent=list.length?"":"No items found / பொருட்கள் இல்லை";
+}
+function reset(){
+ $("editId").value="";$("en").value="";$("ta").value="";
+ $("rate").value="";$("stock").value="";$("type").value="mass";
+ $("formTitle").textContent="Add Grocery Item / மளிகைப் பொருளைச் சேர்";
+}
+$("save").onclick=()=>{
+ const en=$("en").value.trim(),ta=$("ta").value.trim();
+ const rate=Number($("rate").value),stock=Number($("stock").value),type=$("type").value,id=$("editId").value;
+ if(!en||!ta||$("rate").value===""||$("stock").value===""||!Number.isFinite(rate)||rate<0||!Number.isFinite(stock)||stock<0){
+ message("Enter valid names, rate and stock / சரியான பெயர், விலை, இருப்பை உள்ளிடவும்");return;
+ }
+ if(items.some(g=>g.id!==id&&(g.en.toLowerCase()===en.toLowerCase()||g.ta===ta))){
+ message("This item already exists / இந்தப் பொருள் ஏற்கனவே உள்ளது");return;
+ }
+ if(id){
+ const g=items.find(x=>x.id===id);if(!g)return;
+ Object.assign(g,{en,ta,rate,type,stock});
+ }else{
+ items.push({id:"item-"+Date.now()+"-"+Math.random().toString(36).slice(2,7),en,ta,rate,type,stock});
+ }
+ try{persist();reset();render();message("Saved successfully / வெற்றிகரமாகச் சேமிக்கப்பட்டது")}
+ catch(e){message("Unable to save; check browser storage / சேமிக்க முடியவில்லை")}
+};
+$("cancel").onclick=()=>{reset();message("Cancelled / ரத்து செய்யப்பட்டது")};
+$("search").addEventListener("input",render);
+$("rows").addEventListener("click",e=>{
+ const edit=e.target.closest("[data-edit]"),del=e.target.closest("[data-delete]");
+ if(edit){
+ const g=items.find(x=>x.id===edit.dataset.edit);if(!g)return;
+ $("editId").value=g.id;$("en").value=g.en;$("ta").value=g.ta;
+ $("rate").value=g.rate;$("stock").value=g.stock;$("type").value=g.type;
+ $("formTitle").textContent="Edit Grocery Item / மளிகைப் பொருளைத் திருத்து";
+ window.scrollTo({top:0,behavior:"smooth"});message("Editing item / பொருளைத் திருத்துகிறீர்கள்");
+ }
+ if(del){
+ const g=items.find(x=>x.id===del.dataset.delete);if(!g)return;
+ if(!confirm("Delete "+g.en+" / "+g.ta+"? / இந்தப் பொருளை நீக்கவா?"))return;
+ items=items.filter(x=>x.id!==g.id);
+ try{persist();render();message("Deleted / நீக்கப்பட்டது")}
+ catch(err){message("Unable to save change / மாற்றத்தைச் சேமிக்க முடியவில்லை")}
+ }
+});
+render();
+</script>
+</body></html>
